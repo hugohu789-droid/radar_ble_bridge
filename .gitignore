@@ -1,0 +1,34 @@
+# Zephyr build output
+/build/
+/build*/
+twister-out/
+
+# Compiled objects and binaries
+*.o
+*.obj
+*.elf
+*.bin
+*.hex
+*.map
+*.a
+*.lst
+
+# CMake / west generated
+compile_commands.json
+CMakeCache.txt
+CMakeFiles/
+.cache/
+
+# Python virtual envs (if you use one for west/zephyr tools)
+.venv/
+__pycache__/
+*.pyc
+
+# Editor/OS junk
+.DS_Store
+Thumbs.db
+
+# GNU global tags, if you ever generate them
+GPATH
+GTAGS
+GRTAGS
