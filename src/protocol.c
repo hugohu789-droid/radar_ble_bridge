@@ -6,8 +6,17 @@
 
 #include "protocol.h"
 
-/* Same UART as the console for now; point this elsewhere to separate data from logs */
-static const struct device *const out_uart = DEVICE_DT_GET(DT_CHOSEN(zephyr_console));
+/*
+ * Send on the dedicated PC link (CH340 on UART4) when the overlay
+ * defines it, otherwise fall back to the console UART.
+ */
+#if DT_NODE_HAS_STATUS(DT_ALIAS(radar_link), okay)
+#define PROTOCOL_UART_NODE DT_ALIAS(radar_link)
+#else
+#define PROTOCOL_UART_NODE DT_CHOSEN(zephyr_console)
+#endif
+
+static const struct device *const out_uart = DEVICE_DT_GET(PROTOCOL_UART_NODE);
 
 K_MUTEX_DEFINE(tx_lock);
 

@@ -36,9 +36,12 @@ static void uart_isr(const struct device *dev, void *user_data)
 	ARG_UNUSED(user_data);
 	uint8_t c;
 
-	if (!uart_irq_update(dev)) {
-		return;
-	}
+	/*
+	 * Latch the interrupt status before querying it. In this Zephyr
+	 * version uart_irq_update() returns void (older versions returned
+	 * int), so it is called without checking a result.
+	 */
+	uart_irq_update(dev);
 
 	if (!uart_irq_rx_ready(dev)) {
 		return;

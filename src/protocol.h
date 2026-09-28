@@ -4,8 +4,9 @@
 #include "radar.h"
 
 /*
- * Line-based text protocol, sent on the console UART (ST-LINK virtual
- * COM port, 115200 8N1). One line per sample:
+ * Line-based text protocol, sent on the "radar-link" UART (CH340 on
+ * UART4, 115200 8N1), or on the console UART if that alias is not
+ * defined. One line per sample:
  *
  *   $R,<angle_deg>,<distance_mm>,<status>*<CS>\r\n
  *
@@ -17,9 +18,9 @@
  *
  * Example: $R,90,1234,0*43
  *
- * Log messages from printk share the same UART. The PC side should
- * only accept lines that start with '$' and have a valid checksum,
- * and ignore everything else.
+ * The PC side should still only accept lines that start with '$' and
+ * have a valid checksum, and ignore everything else (e.g. noise when
+ * the adapter is plugged in, or logs if the console fallback is used).
  */
 
 /* Returns 0 on success, negative errno on failure. */

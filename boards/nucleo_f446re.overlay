@@ -28,6 +28,12 @@
  *   Red LED -> D5 = PB4, through a 220-330 ohm series resistor,
  *     cathode to GND, active-high
  *
+ * PC link (CH340 USB-to-TTL adapter, set to 3.3 V logic, VCC not connected):
+ *   CH340 TXD -> A1 = PA1 (UART4 RX)
+ *   CH340 RXD -> A0 = PA0 (UART4 TX)
+ *   CH340 GND -> GND
+ *   Radar data only; printk/logs stay on the ST-LINK virtual COM port.
+ *
  * NOTE: pinctrl labels follow Zephyr's usual naming pattern. If
  * `west build` reports one as undeclared, look up the exact name in
  * your workspace's STM32F4 pinctrl files and update it here.
@@ -36,6 +42,7 @@
 	aliases {
 		servo = &servo0;
 		us100-uart = &usart1;
+		radar-link = &uart4;
 		buzzer-pwm = &buzzer_pwm;
 		led-alarm = &alarm_led;
 	};
@@ -138,6 +145,13 @@
 	pinctrl-0 = <&usart1_tx_pa9 &usart1_rx_pa10>;
 	pinctrl-names = "default";
 	current-speed = <9600>;
+	status = "okay";
+};
+
+&uart4 {
+	pinctrl-0 = <&uart4_tx_pa0 &uart4_rx_pa1>;
+	pinctrl-names = "default";
+	current-speed = <115200>;
 	status = "okay";
 };
 
