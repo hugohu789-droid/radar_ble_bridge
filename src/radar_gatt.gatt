@@ -1,0 +1,21 @@
+// GATT database for the radar BLE bridge.
+// Compiled by pico_btstack_make_gatt_header into radar_gatt.h.
+//
+// Custom 128-bit UUID scheme (random base, 2nd 16-bit field varies):
+//   F5D30001-3515-47D6-879D-3E34DE8F197A  Radar Bridge service
+//   F5D30002-...                          Radar Data       (phase 2)
+//   F5D30003-...                          Alarm Threshold  (phase 2)
+//   F5D30004-...                          Link Status      (phase 2)
+//   F5D30005-...                          Heartbeat counter (phase 1 test)
+
+PRIMARY_SERVICE, GAP_SERVICE
+CHARACTERISTIC, GAP_DEVICE_NAME, READ, "RadarBLE"
+
+PRIMARY_SERVICE, GATT_SERVICE
+CHARACTERISTIC, GATT_DATABASE_HASH, READ,
+
+// Radar Bridge service
+PRIMARY_SERVICE, F5D30001-3515-47D6-879D-3E34DE8F197A
+
+// Heartbeat counter: uint32, little-endian, incremented every second
+CHARACTERISTIC, F5D30005-3515-47D6-879D-3E34DE8F197A, READ | NOTIFY | DYNAMIC,
