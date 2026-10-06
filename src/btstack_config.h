@@ -17,14 +17,21 @@
 #define ENABLE_LOG_ERROR
 #define ENABLE_PRINTF_HEXDUMP
 
+/*
+ * LE Data Length Extension: lets one link-layer packet carry up to 251
+ * bytes instead of 27, so a large notification is not split into many
+ * small air packets.
+ */
+#define ENABLE_LE_DATA_LENGTH_EXTENSION
+
 /* Peripheral only: no GATT client */
 #define MAX_NR_GATT_CLIENTS 0
 
 /* ---- Buffers and sizes ---- */
 #define HCI_OUTGOING_PRE_BUFFER_SIZE 4
 /*
- * Largest ACL payload. 251 + 4 bytes of L2CAP header lets the ATT MTU
- * go up to 247, the usual maximum phones negotiate (used in phase 3).
+ * Largest ACL payload. 251 bytes of L2CAP payload + 4 bytes of L2CAP
+ * header, which caps the ATT MTU at 251 (measured with iOS: 251).
  */
 #define HCI_ACL_PAYLOAD_SIZE (251 + 4)
 #define HCI_ACL_CHUNK_SIZE_ALIGNMENT 4

@@ -1,12 +1,13 @@
 // GATT database for the radar BLE bridge.
 // Compiled by pico_btstack_make_gatt_header into radar_gatt.h.
 //
-// Custom 128-bit UUID scheme (random base, 2nd 16-bit field varies):
-//   F5D30001-3515-47D6-879D-3E34DE8F197A  Radar Bridge service
-//   F5D30002-...                          Radar Data       (phase 2)
-//   F5D30003-...                          Alarm Threshold  (phase 2)
-//   F5D30004-...                          Link Status      (phase 2)
-//   F5D30005-...                          Heartbeat counter (phase 1 test)
+// Custom 128-bit UUIDs share the random base F5D3xxxx-3515-47D6-879D-3E34DE8F197A:
+//   F5D30001  Radar Bridge service
+//   F5D30002  Radar Data       Notify       batched samples
+//   F5D30003  Alarm Threshold  Read, Write  warn/danger distances, relayed to the Nucleo
+//   F5D30004  Link Status      Read, Notify UART health, counters, connection parameters
+//   F5D30005  Test Control     Write        throughput test and connection-interval requests
+// All multi-byte values are little-endian. See README.md for the byte layouts.
 
 PRIMARY_SERVICE, GAP_SERVICE
 CHARACTERISTIC, GAP_DEVICE_NAME, READ, "RadarBLE"
@@ -17,5 +18,16 @@ CHARACTERISTIC, GATT_DATABASE_HASH, READ,
 // Radar Bridge service
 PRIMARY_SERVICE, F5D30001-3515-47D6-879D-3E34DE8F197A
 
-// Heartbeat counter: uint32, little-endian, incremented every second
-CHARACTERISTIC, F5D30005-3515-47D6-879D-3E34DE8F197A, READ | NOTIFY | DYNAMIC,
+// Radar Data: u16 sequence, u8 count, then count x {u8 angle, u8 status, u16 distance_mm}
+CHARACTERISTIC, F5D30002-3515-47D6-879D-3E34DE8F197A, NOTIFY | DYNAMIC,
+
+// Alarm Threshold: u16 warn_mm, u16 danger_mm
+CHARACTERISTIC, F5D30003-3515-47D6-879D-3E34DE8F197A, READ | WRITE | DYNAMIC,
+
+// Link Status: 21 bytes, see README.md
+CHARACTERISTIC, F5D30004-3515-47D6-879D-3E34DE8F197A, READ | NOTIFY | DYNAMIC,
+
+// Test Control: 1-2 byte commands (see README.md)
+//   01 <seconds>  start a throughput test     00  stop it
+//   02 / 03 / 04  request a fast / default / slow connection interval
+CHARACTERISTIC, F5D30005-3515-47D6-879D-3E34DE8F197A, WRITE | DYNAMIC,

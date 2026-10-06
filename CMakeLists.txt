@@ -30,6 +30,9 @@ pico_sdk_init()
 
 add_executable(radar_ble_bridge
     src/main.cpp
+    src/radar_protocol.cpp
+    src/radar_service.cpp
+    src/uart_link.cpp
 )
 
 # btstack_config.h and the generated GATT header are looked up here
@@ -39,9 +42,9 @@ target_include_directories(radar_ble_bridge PRIVATE
 
 target_link_libraries(radar_ble_bridge PRIVATE
     pico_stdlib
+    hardware_uart
     pico_btstack_ble
     pico_btstack_cyw43
-    # Background (interrupt-driven) cyw43/BTstack processing, no lwIP
     pico_cyw43_arch_none
 )
 
