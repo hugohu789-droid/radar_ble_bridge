@@ -5,6 +5,10 @@ a Raspberry Pi Pico 2 W receives radar frames from the STM32 Nucleo over
 UART, validates them and forwards them to a phone over a custom GATT
 service.
 
+![Demo: radar sweep on the STM32, notifications arriving in nRF Connect, bridge log](docs/media/radar_demo.gif)
+
+![Bench setup: Pico 2 W bridge, GC9A01 radar display, Nucleo-F446RE, US-100 sensor on a servo](docs/media/radar_bench.jpg)
+
 ```
 Nucleo-F446RE (Zephyr)  --UART 115200-->  Pico 2 W (BTstack)  --BLE GATT-->  Phone (nRF Connect)
    servo + ultrasonic                       CYW43439                         later: Qt radar_host
@@ -16,7 +20,7 @@ Nucleo-F446RE (Zephyr)  --UART 115200-->  Pico 2 W (BTstack)  --BLE GATT-->  Pho
 | --- | --- | --- |
 | 1 | BTstack bring-up: advertise custom service, heartbeat notify | Done |
 | 2 | Radar data over GATT: UART frames, batching, threshold write, link status | Done |
-| 3 | Robustness and performance: reconnect, UART loss detection, MTU, connection parameters, measurements | In progress |
+| 3 | Robustness and performance: reconnect, UART loss detection, MTU, connection parameters, measurements | Done |
 | 4 | Security: LE Secure Connections pairing, bonding, encrypted writes | Planned |
 | 5 | Optional: BLE transport in the Qt host app | Planned |
 
@@ -117,6 +121,35 @@ accept it.
   radar frame arriving on the UART to its notification being accepted by
   BTstack (batching delay included). It covers the bridge only, not the air time, over the samples sent in that window.
 - `Data length changed` shows the negotiated LE Data Length Extension.
+
+## Results
+
+Measured with an Android phone running nRF Connect, MTU 251 and LE Data
+Length Extension (251 octets) negotiated, 61 samples per notification.
+
+| Test | Connection interval | Result |
+| --- | --- | --- |
+| Throughput, 10 s | 22.5 ms | 2308 packets, 570,076 bytes = **454.2 kbit/s** |
+| Throughput, 10 s | 15 ms | 2131 packets, 526,357 bytes = **419.9 kbit/s** |
+| Throughput, earlier runs | 15-30 ms | 438-466 kbit/s at MTU 251; 156 kbit/s at MTU 23 |
+| UART-to-notification latency, normal radar traffic | 22.5 ms | avg 17-18 ms, max 22-23 ms |
+| UART frames | | 2500+ good, 0 bad, 0 dropped in this session |
+
+Latency was about 120 ms with a 100 ms batching window. At the radar's
+low data rate a notification rarely fills up, so most samples waited for
+the timer; cutting the window to 20 ms brought the average to 18 ms
+(details in docs/DEVLOG.md).
+
+The shorter 15 ms interval gave lower throughput than 22.5 ms. A likely
+reason is that the phone allows only a limited number of packets per
+connection event, so more frequent but shorter events carry less data;
+this has not been confirmed yet.
+
+<details>
+<summary>Bridge log for the run above</summary>
+
+![Bridge USB log: connection, DLE, MTU exchange, latency and throughput tests](docs/media/ble_serial_log.png)
+</details>
 
 ## UART protocol
 
